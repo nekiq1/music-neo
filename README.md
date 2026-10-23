@@ -1,109 +1,42 @@
-# Music Neo
+# Neo Music
+Liquid-glass тёмный плеер. Фронт — чистый HTML/CSS/JS (без сборки), сервер — один файл на Node 18+ без зависимостей.
 
-Красивый веб-плеер + Telegram Mini App + бот.  
-Бесплатная lo-fi / ambient музыка (CC0). Очередь, «играть следующим», синхронный текст, настройки качества, PWA «На экран Домой».
+## Запуск
+1. `cp .env.example .env` и впишите ключи (нужны только для тех источников, что используете).
+2. `npm start` → http://localhost:3000
 
-## Стек
+## Источники
+- Spotify: developer.spotify.com → Create app → Client ID/Secret. Играет 30-сек. встроенный плеер (полный трек — только Premium).
+- SoundCloud: заявка на API-доступ на soundcloud.com/you/apps. Играет через виджет.
+- Яндекс Музыка: неофициальный API, токен OAuth в `.env`. Играет через iframe.
 
-- React 19 + TypeScript + Vite
-- Tailwind + neo dark UI (shadcn-inspired)
-- Zustand (плеер)
-- Lucide icons (единый набор)
-- vite-plugin-pwa
-- Telegram WebApp SDK
-- Треки: [Open Lo-Fi](https://github.com/btahir/open-lofi) (CC0)
+## PocketBase (вместо Supabase)
+Один бинарник, SQLite внутри, ~20 МБ ОЗУ.
+1. Скачайте с pocketbase.io, запустите `./pocketbase serve`.
+2. В админке: Settings → Import collections → вставьте `pb_schema.json`.
+3. В `public/app.js` укажите `const PB = 'http://127.0.0.1:8090'`.
+Правила доступа в схеме открыты (избранное привязано к device-id). Для аккаунтов включите auth-коллекцию `users` и ограничьте rules.
 
-## Функции
+## Почему быстро
+Без фреймворков и сборки (~8 КБ кода), кэш поиска 5 мин на сервере, ленивые обложки, плеер — встроенные iframe источников (сервер не стримит аудио).
 
-- Воспроизведение / пауза / prev / next
-- Очередь + «Играть следующим» + «В очередь»
-- Синхронизированный текст (LRC-style)
-- Категории треков
-- Настройки качества звука и громкости
-- PWA: «Добавить на экран Домой» (iOS + Android)
-- Профиль (Telegram user или гость)
-- Mini App ready (один фронт)
+## Telegram: бот и Mini App
+1. @BotFather → /newbot → `BOT_TOKEN`, `BOT_USERNAME` в `.env`. `/setinline` — включить инлайн-режим.
+2. Разместите сайт по HTTPS, укажите `WEBAPP_URL`. В BotFather: /newapp (или кнопка меню) с тем же URL.
+3. `npm start` запускает и сайт, и бота. В любом чате: `@бот название` — выбрать трек и отправить в чат. Личное сообщение боту — поиск.
 
-## Быстрый старт
+## Загрузки пользователей
+Файлы грузятся из браузера прямо в PocketBase, Node-сервер не нагружается. В `.env` задайте `PB_URL`, в `public/app.js` — `PB` (публичный адрес PocketBase).
+- Импортируйте обновлённый `pb_schema.json` (избранное, треки, плейлисты, жалобы). Аккаунты — встроенная коллекция `users`.
+- Новый трек получает статус `pending`. В админке PocketBase → `tracks` поменяйте на `approved` — трек появится на главной, в поиске и в боте.
+- Жалобы падают в `reports`. Нарушающий трек ставьте `rejected` или удаляйте. Укажите в приложении контакт для правообладателей.
+- Поставьте лимиты запросов в PocketBase: Settings → Application → Rate limiting.
 
-```bash
-cd music-neo
-npm install
-npm run dev
-```
+## Полный Spotify (Premium SDK)
+В Spotify Dashboard добавьте Redirect URI = адрес сайта со слэшем (`https://домен/` или `http://127.0.0.1:3000/`) и включите Web Playback SDK. Кнопка «Подключить Spotify» в меню. Нужен Premium; в dev-режиме приложение доступно 25 добавленным пользователям. С подключённым Spotify 30-секундные треки чарта автоматически заменяются полными.
 
-Открой http://localhost:5173
+## Тексты
+Синхронные (LRC) из открытой базы LRCLIB, как в Apple Music: строки подсвечиваются в такт, тап по строке перематывает. Автор загруженного трека может вставить свой текст в формате `[01:23.45] строка` — он тоже будет синхронным. Genius не парсится (запрещено условиями), даётся ссылка поиска.
 
-## Деплой бесплатно
-
-### 1. Сайт + Mini App (Netlify / Vercel / Cloudflare Pages)
-
-```bash
-npm run build
-```
-
-- **Netlify**: drag-and-drop папки `dist` или connect GitHub
-- **Vercel**: `vercel`
-- **Cloudflare Pages**: connect repo, build `npm run build`, output `dist`
-
-Получишь HTTPS — обязательно для Mini App.
-
-### 2. Бот (Cloudflare Worker — бесплатно)
-
-1. Создай бота у [@BotFather](https://t.me/BotFather) → получи `BOT_TOKEN`
-2. `/newapp` → укажи URL Mini App (твой Netlify/Vercel)
-3. Задеплой `bot/index.js` как Worker:
-
-```bash
-# wrangler.toml
-name = "music-neo-bot"
-main = "bot/index.js"
-compatibility_date = "2024-01-01"
-
-[vars]
-WEBAPP_URL = "https://your-app.netlify.app"
-```
-
-Секрет: `BOT_TOKEN`
-
-4. Установи webhook:
-```
-https://api.telegram.org/bot<TOKEN>/setWebhook?url=https://music-neo-bot.<subdomain>.workers.dev
-```
-
-### 3. Треки
-
-По умолчанию используются файлы Open Lo-Fi через jsDelivr.  
-Для продакшена скачай [openlofi.zip](https://github.com/btahir/open-lofi) и положи на свой CDN / R2 / Netlify large media.
-
-## Структура
-
-```
-src/
-  components/   # UI
-  hooks/        # useAudio
-  stores/       # player (Zustand)
-  lib/          # tracks, utils
-  types/
-bot/            # Telegram bot (Worker)
-public/         # PWA icons, favicon
-```
-
-## Безопасность
-
-- Нет бэкенда с пользовательскими данными в MVP (гость + Telegram initData)
-- Только публичные CC0-треки
-- CSP можно добавить на хостинге
-- Для профиля с БД: подключи Supabase free (auth + RLS)
-
-## Дальше (идеи)
-
-- Supabase: избранное, свои плейлисты, история
-- Реальные LRC через LRCLIB API
-- Темы оформления (как обсуждали)
-- Equalizer (Web Audio API)
-- Offline cache треков (Service Worker + Cache API)
-
----
-
-Сделано как senior MVP: один фронт = сайт + PWA + Mini App, бот отдельно, всё в бесплатных лимитах.
+## Карточка строки
+В окне текста кнопка «Карточка строки» делает картинку 1080×1350 с текущей строкой и обложкой (жидкое стекло) — для сторис и чатов. Делится через системное меню или скачивается.
