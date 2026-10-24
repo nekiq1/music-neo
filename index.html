@@ -1,22 +1,38 @@
-<!DOCTYPE html>
-<html lang="ru" class="dark">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <meta name="theme-color" content="#0a0a0f" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="description" content="Music Neo — красивый плеер бесплатной lo-fi и ambient музыки. CC0, без рекламы." />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet" />
-    <title>Music Neo</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  </head>
-  <body class="bg-neo-bg text-white antialiased">
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<!doctype html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<title>Neo Music</title>
+<meta name="description" content="Neo Music — плеер с Liquid Glass: поиск по Deezer, Audius, iTunes, SoundCloud, Spotify и Яндекс Музыке, тексты песен, Telegram Mini App.">
+<meta name="theme-color" content="#07070d" id="meta-theme">
+<meta name="color-scheme" content="dark light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Neo">
+<meta property="og:title" content="Neo Music">
+<meta property="og:description" content="Плеер с Liquid Glass для сайта, Telegram Mini App и бота">
+<meta property="og:image" content="/icon-512.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<script>
+// Тема до первой отрисовки, чтобы не было вспышки; Telegram SDK грузим только внутри Telegram
+(function () {
+  try {
+    var s = JSON.parse(localStorage.getItem('neo:v3:settings') || '{}'), t = s.theme || 'auto';
+    var dark = t === 'auto' ? !matchMedia('(prefers-color-scheme: light)').matches : t === 'dark';
+    document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+    document.getElementById('meta-theme').content = dark ? '#07070d' : '#eceef6';
+  } catch (e) {}
+  var inTg = /tgWebApp/.test(location.hash + location.search) || /Telegram/i.test(navigator.userAgent) || !!window.TelegramWebviewProxy;
+  if (inTg) { var sc = document.createElement('script'); sc.src = 'https://telegram.org/js/telegram-web-app.js'; sc.async = true; sc.id = 'tg-sdk'; document.head.appendChild(sc); }
+})();
+</script>
+</head>
+<body>
+<div id="root"></div>
+<noscript>Для работы Neo Music нужен JavaScript.</noscript>
+</body>
 </html>

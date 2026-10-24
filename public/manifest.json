@@ -1,1 +1,22 @@
-{"name":"Neo Music","short_name":"Neo","start_url":"/","display":"standalone","background_color":"#07070c","theme_color":"#07070c","icons":[{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]}
+{
+  "name": "Neo Music",
+  "short_name": "Neo",
+  "description": "Плеер с Liquid Glass: Deezer, Audius, iTunes, SoundCloud, Spotify, Яндекс Музыка",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#07070d",
+  "theme_color": "#07070d",
+  "lang": "ru",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ],
+  "shortcuts": [
+    { "name": "Поиск", "url": "/?tab=search", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Коллекция", "url": "/?tab=library", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

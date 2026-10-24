@@ -1,0 +1,237 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+@theme inline {
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", Inter, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-2: var(--accent2);
+  --color-on-accent: var(--on-accent);
+  --color-danger: #ff5b7f;
+  --ease-ios: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* ───────── Токены темы ───────── */
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #07070d;
+  --fg: #f5f5fa;
+  --muted: rgba(245, 245, 250, 0.66);
+  --faint: rgba(245, 245, 250, 0.4);
+  --line: rgba(255, 255, 255, 0.12);
+  --glass-top: rgba(255, 255, 255, 0.15);
+  --glass-bot: rgba(255, 255, 255, 0.045);
+  --glass-hi: rgba(255, 255, 255, 0.42);
+  --glass-shadow: rgba(0, 0, 0, 0.46);
+  --glass-solid: rgba(32, 30, 52, 0.96);
+  --sheet: rgba(22, 20, 38, 0.74);
+  --chip: rgba(255, 255, 255, 0.09);
+  --accent: #9d8fff;
+  --accent2: #ff6fae;
+  --on-accent: #0b0818;
+  --c1: #4b3bff;
+  --c2: #ff3d8b;
+  --c3: #10c8bd;
+  --blob: 0.5;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --bg: #eceef7;
+  --fg: #14141d;
+  --muted: rgba(20, 20, 29, 0.64);
+  --faint: rgba(20, 20, 29, 0.42);
+  --line: rgba(20, 20, 29, 0.1);
+  --glass-top: rgba(255, 255, 255, 0.82);
+  --glass-bot: rgba(255, 255, 255, 0.46);
+  --glass-hi: rgba(255, 255, 255, 1);
+  --glass-shadow: rgba(60, 60, 120, 0.2);
+  --glass-solid: rgba(252, 252, 255, 0.97);
+  --sheet: rgba(244, 245, 253, 0.82);
+  --chip: rgba(20, 20, 29, 0.06);
+  --accent: #5b46f5;
+  --accent2: #e6307f;
+  --on-accent: #ffffff;
+  --blob: 0.34;
+  --src-l: 34%;
+}
+
+/* Безопасные зоны: iOS/Android (env) + Telegram (--tg-*) */
+:root {
+  --sat: max(env(safe-area-inset-top, 0px), calc(var(--tg-safe-area-inset-top, 0px) + var(--tg-content-safe-area-inset-top, 0px)));
+  --sab: max(env(safe-area-inset-bottom, 0px), calc(var(--tg-safe-area-inset-bottom, 0px) + var(--tg-content-safe-area-inset-bottom, 0px)));
+  --sal: max(env(safe-area-inset-left, 0px), var(--tg-safe-area-inset-left, 0px));
+  --sar: max(env(safe-area-inset-right, 0px), var(--tg-safe-area-inset-right, 0px));
+  --tab-h: 66px;
+  --mini-h: 66px;
+  --dock: calc(var(--sab) + 12px + var(--tab-h));
+}
+
+@layer base {
+  html, body, #root { height: 100%; }
+  html { -webkit-text-size-adjust: 100%; background: var(--bg); }
+  body {
+    margin: 0; overflow: hidden; overscroll-behavior: none;
+    font-family: var(--font-sans); color: var(--fg); background: var(--bg);
+    -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent;
+    text-rendering: optimizeLegibility;
+  }
+  button, a, input, select, textarea, [role="button"] { touch-action: manipulation; }
+  button { cursor: pointer; color: inherit; background: none; border: 0; padding: 0; font: inherit; }
+  input, textarea { font-size: 16px; color: inherit; } /* 16px — iOS не зумит поле */
+  input::placeholder { color: var(--faint); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 12px; }
+  ::selection { background: color-mix(in srgb, var(--accent) 40%, transparent); }
+}
+
+/* ───────── Фон-аврора (цвета берутся из обложки) ───────── */
+.ambient { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; background: var(--bg); }
+.ambient i {
+  position: absolute; width: 90vmax; height: 90vmax; border-radius: 50%;
+  opacity: var(--blob); will-change: transform; transition: opacity 0.8s;
+  background: radial-gradient(closest-side, var(--c) 0%, transparent 100%);
+}
+.ambient i:nth-child(1) { --c: var(--c1); top: -45vmax; left: -35vmax; animation: drift1 38s ease-in-out infinite alternate; }
+.ambient i:nth-child(2) { --c: var(--c2); right: -50vmax; top: 5vh; animation: drift2 44s ease-in-out infinite alternate; opacity: calc(var(--blob) * 0.8); }
+.ambient i:nth-child(3) { --c: var(--c3); bottom: -55vmax; left: -10vmax; animation: drift3 50s ease-in-out infinite alternate; opacity: calc(var(--blob) * 0.65); }
+.ambient::after { content: ""; position: absolute; inset: 0; background: radial-gradient(120% 70% at 50% 0%, transparent 40%, var(--bg) 100%); opacity: 0.55; }
+@keyframes drift1 { to { transform: translate3d(14vmax, 10vmax, 0) scale(1.1); } }
+@keyframes drift2 { to { transform: translate3d(-16vmax, 12vmax, 0) scale(0.92); } }
+@keyframes drift3 { to { transform: translate3d(12vmax, -10vmax, 0) scale(1.12); } }
+
+/* ───────── Liquid Glass ───────── */
+.glass {
+  position: relative; isolation: isolate;
+  background: linear-gradient(150deg, var(--glass-top), var(--glass-bot));
+  -webkit-backdrop-filter: blur(26px) saturate(1.75) brightness(1.04);
+  backdrop-filter: blur(26px) saturate(1.75) brightness(1.04);
+  box-shadow:
+    inset 0 1px 0 var(--glass-hi),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 0 22px rgba(255, 255, 255, 0.05),
+    0 14px 40px var(--glass-shadow),
+    0 2px 6px rgba(0, 0, 0, 0.12);
+}
+/* зеркальный блик сверху */
+.glass::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: -1;
+  background: radial-gradient(120% 90% at 18% -10%, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0) 55%);
+  opacity: 0.55;
+}
+/* градиентная кромка, как у iOS 26 */
+.glass::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none;
+  background: linear-gradient(140deg, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.1) 38%, rgba(255, 255, 255, 0.03) 62%, rgba(255, 255, 255, 0.4));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+}
+[data-theme="light"] .glass::after { background: linear-gradient(140deg, #fff, rgba(255, 255, 255, 0.5) 40%, rgba(255, 255, 255, 0.35) 62%, #fff); }
+.glass-sheet { background: var(--sheet); -webkit-backdrop-filter: blur(40px) saturate(1.8); backdrop-filter: blur(40px) saturate(1.8); }
+.glass-chip { background: var(--chip); border: 1px solid var(--line); }
+
+/* лёгкий режим: слабые Android, «Экономия», reduced-transparency */
+[data-fx="lite"] .glass, [data-fx="lite"] .glass-sheet {
+  -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--glass-solid);
+}
+[data-fx="lite"] .glass::before { display: none; }
+[data-fx="lite"] .ambient i { animation: none; }
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass, .glass-sheet { background: var(--glass-solid); }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .glass, .glass-sheet { -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--glass-solid); }
+}
+
+/* ───────── Утилиты ───────── */
+.scroll { overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.scroll::-webkit-scrollbar { display: none; }
+.hscroll { display: flex; gap: 14px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; scrollbar-width: none; padding: 4px 20px 14px; margin: 0 -20px; }
+.hscroll::-webkit-scrollbar { display: none; }
+.hscroll > * { scroll-snap-align: start; flex: none; }
+.press { transition: transform 0.35s var(--ease-ios), background-color 0.2s, opacity 0.2s; }
+.press:active { transform: scale(0.94); }
+.cv-auto { content-visibility: auto; contain-intrinsic-size: auto 72px; }
+.safe-top { padding-top: var(--sat); }
+.fade-mask { -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 12%, #000 88%, transparent 100%); mask-image: linear-gradient(to bottom, transparent 0, #000 12%, #000 88%, transparent 100%); }
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.text-balance { text-wrap: balance; }
+
+/* ───────── Обложки, скелетоны, эквалайзер ───────── */
+.cover { aspect-ratio: 1; object-fit: cover; display: block; background: var(--chip); }
+.skeleton { background: linear-gradient(100deg, var(--chip) 30%, color-mix(in srgb, var(--fg) 14%, transparent) 50%, var(--chip) 70%); background-size: 220% 100%; animation: shimmer 1.4s linear infinite; }
+@keyframes shimmer { to { background-position: -220% 0; } }
+.eq { display: inline-flex; gap: 2px; align-items: flex-end; height: 14px; }
+.eq b { width: 3px; background: currentColor; border-radius: 2px; height: 30%; animation: eq 0.9s ease-in-out infinite; }
+.eq b:nth-child(2) { animation-delay: -0.3s; } .eq b:nth-child(3) { animation-delay: -0.6s; }
+.eq[data-paused] b { animation-play-state: paused; height: 25%; }
+@keyframes eq { 0%, 100% { height: 25%; } 50% { height: 100%; } }
+@keyframes pop { 0% { transform: scale(0.6); } 60% { transform: scale(1.18); } 100% { transform: scale(1); } }
+.pop { animation: pop 0.38s var(--ease-ios); }
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin { animation: spin 0.9s linear infinite; }
+@keyframes rise { from { opacity: 0; transform: translate3d(0, 14px, 0); } to { opacity: 1; transform: none; } }
+.rise { animation: rise 0.5s var(--ease-ios) both; }
+
+/* ───────── Слайдеры ───────── */
+.range { -webkit-appearance: none; appearance: none; width: 100%; height: 28px; background: transparent; margin: 0; cursor: pointer; --p: 0%; }
+.range::-webkit-slider-runnable-track { height: 6px; border-radius: 99px; background: linear-gradient(to right, var(--fg) var(--p), color-mix(in srgb, var(--fg) 22%, transparent) var(--p)); }
+.range::-moz-range-track { height: 6px; border-radius: 99px; background: color-mix(in srgb, var(--fg) 22%, transparent); }
+.range::-moz-range-progress { height: 6px; border-radius: 99px; background: var(--fg); }
+.range::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; margin-top: -6px; border-radius: 50%; background: #fff; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.45); transform: scale(0.55); transition: transform 0.25s var(--ease-ios); }
+.range::-moz-range-thumb { width: 18px; height: 18px; border: 0; border-radius: 50%; background: #fff; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.45); }
+.range:active::-webkit-slider-thumb, .range:focus-visible::-webkit-slider-thumb { transform: scale(1); }
+.range-accent::-webkit-slider-runnable-track { background: linear-gradient(to right, var(--accent) var(--p), color-mix(in srgb, var(--fg) 22%, transparent) var(--p)); }
+
+/* ───────── Шторки (headlessui Dialog) ───────── */
+.sheet-backdrop { position: fixed; inset: 0; background: rgba(2, 2, 10, 0.5); transition: opacity 0.4s var(--ease-ios); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+.sheet-backdrop[data-closed] { opacity: 0; }
+.sheet-panel {
+  position: fixed; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; overflow: hidden;
+  max-height: calc(100dvh - var(--sat) - 10px); border-radius: 34px 34px 0 0; color: var(--fg);
+  transform: translate3d(0, var(--drag, 0px), 0); transition: transform 0.5s var(--ease-ios);
+  padding-bottom: var(--sab);
+}
+.sheet-panel[data-closed] { transform: translate3d(0, 105%, 0); }
+.sheet-panel[data-dragging] { transition: none; }
+.sheet-panel.sheet-full { top: calc(var(--sat) + 8px); max-height: none; }
+.sheet-grip { width: 38px; height: 5px; border-radius: 9px; background: color-mix(in srgb, var(--fg) 30%, transparent); margin: 9px auto 4px; flex: none; }
+@media (min-width: 900px) {
+  .sheet-panel { left: auto; top: 12px; right: 12px; bottom: 12px; width: min(460px, 100vw); max-height: none; border-radius: 34px; padding-bottom: 0; }
+  .sheet-panel.sheet-full { top: 12px; width: min(520px, 100vw); }
+  .sheet-panel[data-closed] { transform: translate3d(110%, 0, 0); }
+  .sheet-grip { display: none; }
+}
+
+/* ───────── Тексты песен ───────── */
+.lyr { cursor: pointer; transform-origin: left center; opacity: 0.38; filter: blur(0.6px); transition: opacity 0.45s, transform 0.5s var(--ease-ios), filter 0.45s; }
+.lyr[data-past] { opacity: 0.55; }
+.lyr[data-on] { opacity: 1; transform: scale(1.035); filter: none; }
+
+/* ───────── Док (таб-бар, мини-плеер) ───────── */
+.tabbar { position: fixed; z-index: 30; left: calc(var(--sal) + 14px); right: calc(var(--sar) + 14px); bottom: calc(var(--sab) + 10px); height: var(--tab-h); border-radius: 36px; max-width: 520px; margin: 0 auto; }
+.tab-indicator { position: absolute; top: 5px; bottom: 5px; border-radius: 30px; transition: transform 0.55s var(--ease-ios), width 0.3s; background: color-mix(in srgb, var(--fg) 13%, transparent); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 4px 14px rgba(0, 0, 0, 0.18); }
+.mini { position: fixed; z-index: 29; left: calc(var(--sal) + 14px); right: calc(var(--sar) + 14px); bottom: calc(var(--dock) + 4px); height: var(--mini-h); border-radius: 33px; max-width: 520px; margin: 0 auto; }
+.mini-progress { position: absolute; left: 22px; right: 22px; bottom: 5px; height: 3px; border-radius: 3px; background: color-mix(in srgb, var(--fg) 16%, transparent); overflow: hidden; }
+.mini-progress > i { display: block; height: 100%; width: 100%; background: var(--fg); border-radius: 3px; transform-origin: left center; transform: scaleX(var(--p, 0)); }
+.side { position: fixed; z-index: 30; left: 14px; top: 14px; bottom: 14px; width: 244px; border-radius: 34px; padding: 22px 14px 14px; display: none; flex-direction: column; gap: 4px; }
+.nav-item { display: flex; align-items: center; gap: 12px; height: 46px; padding: 0 14px; border-radius: 18px; color: var(--muted); font-weight: 600; transition: background-color 0.25s, color 0.25s; }
+.nav-item:hover { background: var(--chip); color: var(--fg); }
+.nav-item[aria-current="page"] { background: color-mix(in srgb, var(--fg) 14%, transparent); color: var(--fg); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25); }
+
+@media (min-width: 900px) {
+  .side { display: flex; }
+  .tabbar { display: none; }
+  .mini { left: 272px; right: 14px; bottom: 14px; max-width: none; }
+  .shell-main { margin-left: 258px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
+}
